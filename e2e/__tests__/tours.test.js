@@ -1,6 +1,6 @@
 const request = require('../request');
 const db = require('../db');
-const { postTour } = require('../tests-setup');
+const { postTour, postTourStop } = require('../tests-setup');
 const { ObjectId } = require('mongoose').Types;
 
 describe('tour api', () => {
@@ -17,6 +17,11 @@ describe('tour api', () => {
         attendance: 2000
       }
     ]
+  };
+
+  const firstStop = {
+    latitude: 46,
+    longitude: 120
   };
 
   it('posts a tour', () => {
@@ -37,7 +42,7 @@ describe('tour api', () => {
           "activities": Array [
             "Ping pong, beach, volleyball",
           ],
-          "launchDate": "2019-10-02T14:58:25.417Z",
+          "launchDate": "2019-10-02T17:08:37.596Z",
           "stops": Array [
             Object {
               "_id": Any<String>,
@@ -73,7 +78,7 @@ describe('tour api', () => {
               "activities": Array [
                 "Ping pong, beach, volleyball",
               ],
-              "launchDate": "2019-10-02T14:58:25.417Z",
+              "launchDate": "2019-10-02T17:08:37.596Z",
               "stops": Array [
                 Object {
                   "_id": Any<String>,
@@ -109,7 +114,7 @@ describe('tour api', () => {
               "activities": Array [
                 "Ping pong, beach, volleyball",
               ],
-              "launchDate": "2019-10-02T14:58:25.417Z",
+              "launchDate": "2019-10-02T17:08:37.596Z",
               "stops": Array [
                 Object {
                   "_id": Any<String>,
@@ -122,5 +127,15 @@ describe('tour api', () => {
           );
         });
     });
+  });
+
+  it.skip('adds a stop to a tour', () => {
+    return postTour(epicTour)
+      .then(tour => {
+        return postTourStop(tour._id, firstStop);
+      })
+      .then(([, stops]) => {
+        expect(stops[0]).toMatchInlineSnapshot();
+      });
   });
 });
