@@ -112,15 +112,20 @@ describe('tour api', () => {
         return postTourStop(tour._id, firstStop);
       })
       .then(body => {
-        expect(body[0]).toMatchInlineSnapshot(`
+        expect(body[0]).toMatchInlineSnapshot(
+          {
+            _id: expect.any(String)
+          },
+          `
           Object {
-            "_id": "5d95177d090dbb13ba88b145",
+            "_id": Any<String>,
             "location": Object {
               "latitude": 45.5266975,
               "longitude": -122.6880503,
             },
           }
-        `);
+        `
+        );
       });
   });
 
