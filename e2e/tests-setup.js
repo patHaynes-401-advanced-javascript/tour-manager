@@ -5,15 +5,19 @@ function postTour(tour) {
     .post('/api/tours')
     .send(tour)
     .expect(200)
-    .then(({ body }) => body);
+    .then(({ body }) => {
+      return body;
+    });
 }
 
-function postTourStop(id, location) {
+function postTourStop(tourId, location) {
   return request
-    .post(`/api/tours/${id}/stops`)
+    .post(`/api/tours/${tourId}/stops`)
     .send(location)
     .expect(200)
-    .then(({ body }) => [id, body]);
+    .then(({ body }) => {
+      return body;
+    });
 }
 
 

@@ -1,7 +1,14 @@
+jest.mock('../../lib/services/maps-api');
 const request = require('../request');
 const db = require('../db');
 const { postTour, postTourStop } = require('../tests-setup');
-const { ObjectId } = require('mongoose').Types;
+// const { ObjectId } = require('mongoose').Types;
+const getLocation = require('../../lib/services/maps-api');
+
+getLocation.mockResolvedValue({
+  latitude: 45.5266975,
+  longitude: -122.6880503
+});
 
 describe('tour api', () => {
   beforeEach(() => {
@@ -10,18 +17,15 @@ describe('tour api', () => {
   const epicTour = {
     title: 'Super Awesome Tour',
     activities: ['Ping pong, beach, volleyball'],
-    stops: [
-      {
-        location: {},
-        weather: ObjectId,
-        attendance: 2000
-      }
-    ]
+    stops: []
   };
 
   const firstStop = {
-    latitude: 46,
-    longitude: 120
+    address: 'alchemy code lab'
+  };
+
+  const attendanceAtShow = {
+    attendance: 200
   };
 
   it('posts a tour', () => {
@@ -29,11 +33,7 @@ describe('tour api', () => {
       expect(tour).toMatchInlineSnapshot(
         {
           _id: expect.any(String),
-          stops: [
-            {
-              _id: expect.any(String)
-            }
-          ]
+          launchDate: expect.any(String)
         },
         `
         Object {
@@ -42,13 +42,8 @@ describe('tour api', () => {
           "activities": Array [
             "Ping pong, beach, volleyball",
           ],
-          "launchDate": "2019-10-02T17:08:37.596Z",
-          "stops": Array [
-            Object {
-              "_id": Any<String>,
-              "attendance": 2000,
-            },
-          ],
+          "launchDate": Any<String>,
+          "stops": Array [],
           "title": "Super Awesome Tour",
         }
       `
@@ -65,11 +60,7 @@ describe('tour api', () => {
           expect(body).toMatchInlineSnapshot(
             {
               _id: expect.any(String),
-              stops: [
-                {
-                  _id: expect.any(String)
-                }
-              ]
+              launchDate: expect.any(String)
             },
             `
             Object {
@@ -78,13 +69,8 @@ describe('tour api', () => {
               "activities": Array [
                 "Ping pong, beach, volleyball",
               ],
-              "launchDate": "2019-10-02T17:08:37.596Z",
-              "stops": Array [
-                Object {
-                  "_id": Any<String>,
-                  "attendance": 2000,
-                },
-              ],
+              "launchDate": Any<String>,
+              "stops": Array [],
               "title": "Super Awesome Tour",
             }
           `
@@ -101,11 +87,7 @@ describe('tour api', () => {
           expect(body).toMatchInlineSnapshot(
             {
               _id: expect.any(String),
-              stops: [
-                {
-                  _id: expect.any(String)
-                }
-              ]
+              launchDate: expect.any(String)
             },
             `
             Object {
@@ -114,13 +96,8 @@ describe('tour api', () => {
               "activities": Array [
                 "Ping pong, beach, volleyball",
               ],
-              "launchDate": "2019-10-02T17:08:37.596Z",
-              "stops": Array [
-                Object {
-                  "_id": Any<String>,
-                  "attendance": 2000,
-                },
-              ],
+              "launchDate": Any<String>,
+              "stops": Array [],
               "title": "Super Awesome Tour",
             }
           `
@@ -129,13 +106,54 @@ describe('tour api', () => {
     });
   });
 
-  it.skip('adds a stop to a tour', () => {
+  it('adds a stop to a tour', () => {
     return postTour(epicTour)
       .then(tour => {
         return postTourStop(tour._id, firstStop);
       })
-      .then(([, stops]) => {
-        expect(stops[0]).toMatchInlineSnapshot();
+      .then(body => {
+        expect(body[0]).toMatchInlineSnapshot(`
+          Object {
+            "_id": "5d95177d090dbb13ba88b145",
+            "location": Object {
+              "latitude": 45.5266975,
+              "longitude": -122.6880503,
+            },
+          }
+        `);
       });
+  });
+
+  it('removes a stop', () => {
+    return postTour(epicTour).then(tour => {
+      return postTourStop(tour._id, firstStop).then(res => {
+        return request
+          .delete(`/api/tours/${tour._id}/stops/${res[0]._id}`)
+          .expect(200)
+          .then(res => {
+            console.log(res.body);
+            return request
+              .get(`/api/tours/${tour._id}`)
+              .expect(200)
+              .then(res => {
+                expect(res.body.stops.length).toBe(0);
+              });
+          });
+      });
+    });
+  });
+
+  it('updates the attendance for a stop on the tour', () => {
+    return postTour(epicTour).then(tour => {
+      return postTourStop(tour._id, firstStop).then(res => {
+        return request
+          .put(`/api/tours/${tour._id}/stops/${res[0]._id}/attendance`)
+          .send(attendanceAtShow)
+          .expect(200)
+          .then(res => {
+            expect(res.body[0].attendance).toBe(200);
+          });
+      });
+    });
   });
 });
