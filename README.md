@@ -3,8 +3,8 @@
 ### Author: Pat Haynes
 
 ### Links and Resources
-* [submission PR](https://github.com/patHaynes-401-advanced-javascript/MongooseLab/pull/1)
-* [travis](https://travis-ci.com/patHaynes-401-advanced-javascript/MongooseLab/builds/129013640)
+* [submission PR](https://github.com/patHaynes-401-advanced-javascript/tour-manager/pull/1)
+* [travis](https://github.com/patHaynes-401-advanced-javascript/tour-manager/pull/1/checks?check_run_id=245534980)
 
 
 ## Running the app
