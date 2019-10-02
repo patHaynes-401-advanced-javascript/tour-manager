@@ -8,5 +8,13 @@ function postTour(tour) {
     .then(({ body }) => body);
 }
 
+function postTourStop(id, location) {
+  return request
+    .post(`/api/tours/${id}/stops`)
+    .send(location)
+    .expect(200)
+    .then(({ body }) => [id, body]);
+}
 
-module.exports = { postTour };
+
+module.exports = { postTour, postTourStop };
